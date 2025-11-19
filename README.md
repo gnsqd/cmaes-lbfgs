@@ -24,7 +24,7 @@ Add this to your `Cargo.toml`:
 
 ```toml
 [dependencies]
-cmaes-lbfgs = "0.1.0"
+cmaes-lbfgsb = "0.1.0"
 ```
 
 ## Quick Start
@@ -32,7 +32,7 @@ cmaes-lbfgs = "0.1.0"
 ### CMA-ES Example
 
 ```rust
-use cmaes_lbfgs::cmaes::{canonical_cmaes_optimize, CmaesCanonicalConfig};
+use cmaes_lbfgsb::cmaes::{canonical_cmaes_optimize, CmaesCanonicalConfig};
 
 // Define objective function (minimize)
 let objective = |x: &[f64]| {
@@ -62,7 +62,7 @@ println!("Generations used: {}", result.generations_used);
 ### L-BFGS-B Example
 
 ```rust
-use cmaes_lbfgs::lbfgsb_optimize::{lbfgsb_optimize, LbfgsbConfig};
+use cmaes_lbfgsb::lbfgsb_optimize::{lbfgsb_optimize, LbfgsbConfig};
 
 // Define objective function
 let objective = |x: &[f64]| {

@@ -1,13 +1,13 @@
 [package]
-name = "cmaes-lbfgs"
+name = "cmaes-lbfgsb"
 version = "0.1.0"
 edition = "2021"
-authors = []
+authors = ["Shlomo Kraus"]
 description = "High-performance CMA-ES and L-BFGS-B optimization algorithms for constrained and unconstrained problems"
-license = "MIT"
-repository = "https://github.com/shlomokraus/cmaes-lbfgs"
-homepage = "https://github.com/shlomokraus/cmaes-lbfgs"
-documentation = "https://docs.rs/cmaes-lbfgs"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/gnsqd/cmaes-lbfgsb"
+homepage = "https://github.com/gnsqd/cmaes-lbfgsb"
+documentation = "https://docs.rs/cmaes-lbfgsb"
 readme = "README.md"
 keywords = ["optimization", "cmaes", "lbfgs", "finance", "calibration"]
 categories = ["algorithms", "mathematics", "science"]
