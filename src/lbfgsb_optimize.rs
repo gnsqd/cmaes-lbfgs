@@ -22,7 +22,7 @@
 /// # Example
 /// 
 /// ```rust
-/// use cmaes_lbfgs::lbfgsb_optimize::LbfgsbConfig;
+/// use cmaes_lbfgsb::lbfgsb_optimize::LbfgsbConfig;
 /// 
 /// // Basic configuration (often sufficient)
 /// let config = LbfgsbConfig::default();

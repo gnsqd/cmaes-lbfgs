@@ -39,7 +39,7 @@ pub struct CmaesResult {
 /// # Example
 /// 
 /// ```rust
-/// use cmaes_lbfgs::cmaes::CmaesCanonicalConfig;
+/// use cmaes_lbfgsb::cmaes::CmaesCanonicalConfig;
 /// 
 /// // Basic configuration
 /// let config = CmaesCanonicalConfig {
