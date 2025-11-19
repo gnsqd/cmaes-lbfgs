@@ -5,5 +5,5 @@ pub mod lbfgsb_optimize;
 mod cmaes_test;
 
 // Re-export key types and functions for easier access
-pub use cmaes::{CmaesCanonicalConfig, CmaesResult, canonical_cmaes_optimize};
-pub use lbfgsb_optimize::{LbfgsbConfig, lbfgsb_optimize};
+pub use cmaes::{canonical_cmaes_optimize, CmaesCanonicalConfig, CmaesResult};
+pub use lbfgsb_optimize::{lbfgsb_optimize, LbfgsbConfig};

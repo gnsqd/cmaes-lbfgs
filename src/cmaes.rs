@@ -19,28 +19,28 @@ pub struct CmaesResult {
 }
 
 /// Configuration for canonical CMA-ES with evolution paths and rank updates.
-/// 
+///
 /// This struct contains all parameters that control the behavior of the CMA-ES algorithm.
 /// Most parameters have sensible defaults and can be left as `None` to use automatic values.
-/// 
+///
 /// # Basic Parameters
-/// 
+///
 /// The most important parameters for typical usage are:
 /// - `population_size`: Controls exploration vs exploitation trade-off
 /// - `max_generations`: Maximum number of generations to run
 /// - `parallel_eval`: Enable parallel function evaluation
 /// - `verbosity`: Control output level
-/// 
+///
 /// # Advanced Parameters
-/// 
+///
 /// Advanced users can fine-tune the algorithm behavior using learning rates,
 /// restart strategies, and numerical precision settings.
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use cmaes_lbfgsb::cmaes::CmaesCanonicalConfig;
-/// 
+///
 /// // Basic configuration
 /// let config = CmaesCanonicalConfig {
 ///     population_size: 20,
@@ -49,7 +49,7 @@ pub struct CmaesResult {
 ///     verbosity: 1,
 ///     ..Default::default()
 /// };
-/// 
+///
 /// // Advanced configuration with restarts
 /// let advanced_config = CmaesCanonicalConfig {
 ///     population_size: 50,
@@ -62,14 +62,14 @@ pub struct CmaesResult {
 /// ```
 pub struct CmaesCanonicalConfig {
     /// Population size (number of candidate solutions per generation).
-    /// 
+    ///
     /// **Default**: 0 (automatic: 4 + 3⌊ln(n)⌋ where n is problem dimension)
-    /// 
+    ///
     /// **Typical range**: 10-100 for most problems
-    /// 
+    ///
     /// **Larger values**: Better global exploration, slower convergence, more robust
     /// **Smaller values**: Faster convergence, risk of premature convergence
-    /// 
+    ///
     /// **Guidelines**:
     /// - Easy problems (unimodal): Use smaller populations (10-20)
     /// - Difficult problems (multimodal): Use larger populations (50-100+)
@@ -77,257 +77,257 @@ pub struct CmaesCanonicalConfig {
     pub population_size: usize,
 
     /// Maximum number of generations per run.
-    /// 
+    ///
     /// **Default**: 500
-    /// 
+    ///
     /// **Guidelines**:
     /// - Simple problems: 100-500 generations usually sufficient
     /// - Complex problems: 1000-5000+ generations may be needed
     /// - Use with `total_evals_budget` for better control
-    /// 
+    ///
     /// If sub-run budgeting is disabled, each run uses this value for generations.
     /// Otherwise, sub-runs can get smaller or larger generation budgets.
     pub max_generations: usize,
 
     /// Random seed for reproducible results.
-    /// 
+    ///
     /// **Default**: 42
-    /// 
+    ///
     /// Set to different values to get different random runs, or keep the same
     /// for reproducible experiments.
     pub seed: u64,
 
     /// Learning rate for rank-one update of covariance matrix.
-    /// 
+    ///
     /// **Default**: None (automatic: 2/((n+1.3)² + μ_eff))
-    /// 
+    ///
     /// **Typical range**: 0.0001 - 0.1
-    /// 
+    ///
     /// Controls how quickly the algorithm adapts to the search direction.
     /// Smaller values = more conservative adaptation.
     pub c1: Option<f64>,
 
     /// Learning rate for rank-μ update of covariance matrix.
-    /// 
+    ///
     /// **Default**: None (automatic: depends on μ_eff and problem dimension)
-    /// 
+    ///
     /// **Typical range**: 0.001 - 1.0
-    /// 
+    ///
     /// Controls how much the population covariance influences the search distribution.
     /// Must be balanced with c1 to ensure proper covariance matrix updates.
     pub c_mu: Option<f64>,
 
     /// Learning rate for cumulation path for step-size control.
-    /// 
+    ///
     /// **Default**: None (automatic: (μ_eff + 2)/(n + μ_eff + 5))
-    /// 
+    ///
     /// **Typical range**: 0.1 - 1.0
-    /// 
+    ///
     /// Controls the step-size adaptation speed. Larger values lead to faster
     /// step-size changes but may cause instability.
     pub c_sigma: Option<f64>,
 
     /// Damping parameter for step-size update.
-    /// 
+    ///
     /// **Default**: None (automatic: 1 + 2max(0, √((μ_eff-1)/(n+1)) - 1))
-    /// 
+    ///
     /// **Typical range**: 1.0 - 10.0
-    /// 
+    ///
     /// Controls the damping of step-size updates. Larger values = more conservative
     /// step-size changes, which can improve stability but slow adaptation.
     pub d_sigma: Option<f64>,
 
     /// Enable parallel evaluation of candidate solutions.
-    /// 
+    ///
     /// **Default**: false
-    /// 
+    ///
     /// When true, the population is evaluated in parallel using Rayon.
     /// Recommended for expensive objective functions. Disable for very fast
     /// functions where parallelization overhead exceeds benefits.
     pub parallel_eval: bool,
 
     /// Verbosity level for progress output.
-    /// 
+    ///
     /// **Levels**:
     /// - 0: Silent (no output)
     /// - 1: Basic progress (every 10 generations)
     /// - 2: Detailed debug information
-    /// 
+    ///
     /// **Default**: 0
     pub verbosity: u8,
 
     /// Number of IPOP (Increasing Population) restarts.
-    /// 
+    ///
     /// **Default**: 0 (no IPOP restarts)
-    /// 
+    ///
     /// **Typical range**: 0-5 restarts
-    /// 
+    ///
     /// IPOP restarts the algorithm with increasing population sizes when
     /// it gets stuck. Each restart doubles the population size by default.
     /// Effective for multimodal problems but increases computational cost.
-    /// 
+    ///
     /// **Note**: BIPOP overrides IPOP if both are > 0.
     pub ipop_restarts: usize,
 
     /// Factor by which population size is multiplied each IPOP restart.
-    /// 
+    ///
     /// **Default**: 2.0
-    /// 
+    ///
     /// **Typical range**: 1.5 - 3.0
-    /// 
+    ///
     /// Controls how aggressively the population size grows with each restart.
     /// Larger factors provide better exploration but increase cost exponentially.
     pub ipop_increase_factor: f64,
 
     /// Number of BIPOP (Bi-Population) restarts.
-    /// 
+    ///
     /// **Default**: 0 (no BIPOP restarts)
-    /// 
+    ///
     /// **Typical range**: 0-10 restarts
-    /// 
+    ///
     /// BIPOP alternates between small and large population runs. More sophisticated
     /// than IPOP and often more effective for difficult multimodal problems.
-    /// 
+    ///
     /// **Note**: BIPOP overrides IPOP if both are > 0.
     pub bipop_restarts: usize,
 
     /// Total function-evaluations budget across all runs.
-    /// 
+    ///
     /// **Default**: 0 (no budget limit)
-    /// 
+    ///
     /// **Typical values**: 10,000 - 1,000,000 depending on problem complexity
-    /// 
+    ///
     /// When combined with `use_subrun_budgeting`, this budget is intelligently
     /// allocated across multiple restart runs.
     pub total_evals_budget: usize,
 
     /// Enable advanced sub-run budgeting logic for IPOP/BIPOP.
-    /// 
+    ///
     /// **Default**: false
-    /// 
+    ///
     /// When true, the `total_evals_budget` is strategically allocated across
     /// restart runs rather than running each to completion. This often provides
     /// better results within a fixed computational budget.
     pub use_subrun_budgeting: bool,
 
     /// Alpha parameter used in c_mu calculation.
-    /// 
+    ///
     /// **Default**: Some(2.0)
-    /// 
+    ///
     /// **Typical range**: 1.0 - 4.0
-    /// 
+    ///
     /// Advanced parameter that influences the balance between rank-1 and rank-μ
     /// updates of the covariance matrix. Rarely needs adjustment.
     pub alpha_mu: Option<f64>,
 
     /// Threshold factor for the evolution path test in step-size control.
-    /// 
+    ///
     /// **Default**: Some(1.4)
-    /// 
+    ///
     /// **Typical range**: 1.0 - 2.0
-    /// 
+    ///
     /// Controls when to halt the cumulation of the evolution path based on
     /// its length. Affects the balance between exploration and exploitation.
     pub hsig_threshold_factor: Option<f64>,
 
     /// Factor for small population size calculation in BIPOP.
-    /// 
+    ///
     /// **Default**: Some(0.5)
-    /// 
+    ///
     /// **Typical range**: 0.1 - 0.8
-    /// 
+    ///
     /// In BIPOP, determines the size of "small" population runs relative to
     /// the baseline population size. Smaller values = more focused local search.
     pub bipop_small_population_factor: Option<f64>,
 
     /// Budget allocation factor for small BIPOP runs.
-    /// 
+    ///
     /// **Default**: Some(1.0)
-    /// 
+    ///
     /// **Typical range**: 0.5 - 2.0
-    /// 
+    ///
     /// Controls how much of the evaluation budget is allocated to small population
     /// runs in BIPOP. Values > 1.0 give more budget to exploitation phases.
     pub bipop_small_budget_factor: Option<f64>,
 
     /// Budget allocation factor for large BIPOP runs.
-    /// 
+    ///
     /// **Default**: Some(3.0)
-    /// 
+    ///
     /// **Typical range**: 1.0 - 5.0
-    /// 
+    ///
     /// Controls how much of the evaluation budget is allocated to large population
     /// runs in BIPOP. Values > 1.0 give more budget to exploration phases.
     pub bipop_large_budget_factor: Option<f64>,
 
     /// Factor for large population size increase in BIPOP.
-    /// 
+    ///
     /// **Default**: Some(2.0)
-    /// 
+    ///
     /// **Typical range**: 1.5 - 3.0
-    /// 
+    ///
     /// Controls how the large population size grows with each BIPOP restart.
     /// Similar to `ipop_increase_factor` but for BIPOP large runs.
     pub bipop_large_pop_increase_factor: Option<f64>,
 
     /// Maximum number of iterations for bounds mirroring.
-    /// 
+    ///
     /// **Default**: Some(8)
-    /// 
+    ///
     /// **Typical range**: 5 - 20
-    /// 
+    ///
     /// When candidates violate bounds, they are "mirrored" back into the feasible
     /// region. This parameter limits how many mirror operations are performed
     /// before clamping to bounds.
     pub max_bound_iterations: Option<usize>,
 
     /// Numerical precision threshold for eigendecomposition convergence.
-    /// 
+    ///
     /// **Default**: Some(1e-15)
-    /// 
+    ///
     /// **Typical range**: 1e-20 to 1e-10
-    /// 
+    ///
     /// Controls the precision of the eigendecomposition of the covariance matrix.
     /// Smaller values = higher precision but potentially slower computation.
     pub eig_precision_threshold: Option<f64>,
 
     /// Minimum threshold for covariance matrix eigenvalues.
-    /// 
+    ///
     /// **Default**: Some(1e-15)
-    /// 
+    ///
     /// **Typical range**: 1e-20 to 1e-10
-    /// 
+    ///
     /// Prevents numerical issues by ensuring eigenvalues don't become too small.
     /// Smaller values allow more aggressive adaptation but risk numerical instability.
     pub min_eig_value: Option<f64>,
 
     /// Minimum threshold for matrix operations.
-    /// 
+    ///
     /// **Default**: Some(1e-20)
-    /// 
+    ///
     /// **Typical range**: 1e-25 to 1e-15
-    /// 
+    ///
     /// General numerical threshold for matrix computations to prevent
     /// underflow and maintain numerical stability.
     pub matrix_op_threshold: Option<f64>,
 
     /// Maximum stagnation generations before termination.
-    /// 
+    ///
     /// **Default**: Some(200)
-    /// 
+    ///
     /// **Typical range**: 50 - 1000
-    /// 
+    ///
     /// Algorithm terminates if no improvement is seen for this many consecutive
     /// generations. Prevents infinite runs on problems where the optimum has
     /// been reached within tolerance.
     pub stagnation_limit: Option<usize>,
 
     /// Minimum sigma value to prevent numerical issues.
-    /// 
+    ///
     /// **Default**: Some(1e-8)
-    /// 
+    ///
     /// **Typical range**: 1e-12 to 1e-6
-    /// 
+    ///
     /// Prevents the step-size from becoming so small that progress stops due
     /// to numerical precision limits. Should be much smaller than expected
     /// parameter scales.
@@ -419,7 +419,11 @@ fn compute_weights(lambda: usize) -> (Vec<f64>, usize) {
 
 /// Naive Jacobi or similar approach for a real-symmetric matrix.
 #[allow(clippy::needless_range_loop)]
-fn eigendecompose_symmetric(cov: &[Vec<f64>], eps: f64, apq_threshold: f64) -> Result<(Vec<Vec<f64>>, Vec<f64>), String> {
+fn eigendecompose_symmetric(
+    cov: &[Vec<f64>],
+    eps: f64,
+    apq_threshold: f64,
+) -> Result<(Vec<Vec<f64>>, Vec<f64>), String> {
     let n = cov.len();
     let mut mat = cov.to_vec();
     let mut eigvecs = vec![vec![0.0; n]; n];
@@ -624,11 +628,11 @@ fn init_cmaes_state(
 }
 
 /// Runs one CMA-ES sub-run, continuing from an existing state (if given).
-/// 
+///
 /// - `state_in`: if Some, we continue from that state; else initialize fresh
 /// - `best_obj_in`: the global best objective so far (to handle termination or merges)
 /// - `evals_limit`: 0 => no limit, else stop if we exceed it
-/// 
+///
 /// Returns:
 /// - `CmaesResult` with partial info
 /// - Updated state (mean, sigma, B, D, p_c, p_s, etc.)
@@ -644,7 +648,6 @@ fn cmaes_one_run<F>(
     rng_seed: u64,
     evals_limit: usize,
     initial_mean: Option<&[f64]>,
-
 ) -> (CmaesResult, CmaesIntermediateState, bool, usize)
 where
     F: Fn(&[f64]) -> f64 + Sync + Send,
@@ -684,16 +687,17 @@ where
         Some(s) => s,
         None => {
             let mut fresh = init_cmaes_state(bounds, config);
-    
+
             // If user provided an initial guess, override the fresh state's mean
             if let Some(guess) = initial_mean {
                 // Reflect/Clamp each dimension into [lb, ub]
                 for (i, &(lb, ub)) in bounds.iter().enumerate() {
                     let g = guess[i];
-                    fresh.mean[i] = mirror_bound(g, lb, ub, config.max_bound_iterations.unwrap_or(8));
+                    fresh.mean[i] =
+                        mirror_bound(g, lb, ub, config.max_bound_iterations.unwrap_or(8));
                 }
             }
-    
+
             fresh
         }
     };
@@ -766,7 +770,12 @@ where
                 let mut candidate = vec![0.0; dim];
                 for i in 0..dim {
                     let raw = mean[i] + sigma * yz[i];
-                    candidate[i] = mirror_bound(raw, bounds[i].0, bounds[i].1, config.max_bound_iterations.unwrap_or(8));
+                    candidate[i] = mirror_bound(
+                        raw,
+                        bounds[i].0,
+                        bounds[i].1,
+                        config.max_bound_iterations.unwrap_or(8),
+                    );
                 }
                 candidate
             })
@@ -833,23 +842,26 @@ where
         p_s = p_s
             .iter()
             .zip(y_wsum.iter())
-            .map(|(ps_i, &y)| (1.0 - c_sigma) * ps_i + ((c_sigma * (2.0 - c_sigma) * mu_eff).sqrt()) * y)
+            .map(|(ps_i, &y)| {
+                (1.0 - c_sigma) * ps_i + ((c_sigma * (2.0 - c_sigma) * mu_eff).sqrt()) * y
+            })
             .collect();
 
         let ps_norm = p_s.iter().map(|v| v * v).sum::<f64>().sqrt();
         sigma *= f64::exp((c_sigma / d_sigma) * (ps_norm / chi_dim(dim as f64) - 1.0));
 
         // Update p_c
-        let hsig = if ps_norm
-            / (1.0 - (1.0 - c_sigma).powi(2 * (generation + 1) as i32)).sqrt()
-            < (config.hsig_threshold_factor.unwrap_or(1.4) + 2.0 / (dim as f64 + 1.0)) * chi_dim(dim as f64)
+        let hsig = if ps_norm / (1.0 - (1.0 - c_sigma).powi(2 * (generation + 1) as i32)).sqrt()
+            < (config.hsig_threshold_factor.unwrap_or(1.4) + 2.0 / (dim as f64 + 1.0))
+                * chi_dim(dim as f64)
         {
             1.0
         } else {
             0.0
         };
         for d_ in 0..dim {
-            p_c[d_] = (1.0 - c_c) * p_c[d_] + hsig * ((c_c * (2.0 - c_c) * mu_eff).sqrt()) * y_wsum[d_];
+            p_c[d_] =
+                (1.0 - c_c) * p_c[d_] + hsig * ((c_c * (2.0 - c_c) * mu_eff).sqrt()) * y_wsum[d_];
         }
 
         // Covariance updates
@@ -881,7 +893,11 @@ where
             }
         }
 
-        match eigendecompose_symmetric(&updated_c, config.eig_precision_threshold.unwrap_or(1e-15), config.matrix_op_threshold.unwrap_or(1e-20)) {
+        match eigendecompose_symmetric(
+            &updated_c,
+            config.eig_precision_threshold.unwrap_or(1e-15),
+            config.matrix_op_threshold.unwrap_or(1e-20),
+        ) {
             Ok((new_b, new_d)) => {
                 cov_eigvecs = new_b;
                 cov_eigvals = new_d;
@@ -896,7 +912,10 @@ where
         mean = new_mean;
 
         if no_improvement_count > stagnation_limit {
-            termination_reason = format!("No improvement for {} consecutive generations", stagnation_limit);
+            termination_reason = format!(
+                "No improvement for {} consecutive generations",
+                stagnation_limit
+            );
             break;
         }
 
@@ -945,7 +964,6 @@ pub fn canonical_cmaes_optimize<F>(
     bounds: &[(f64, f64)],
     config: CmaesCanonicalConfig,
     initial_mean: Option<Vec<f64>>,
-
 ) -> CmaesResult
 where
     F: Fn(&[f64]) -> f64 + Sync + Send,
@@ -956,10 +974,10 @@ where
             &objective,
             bounds,
             &config,
-            None,              // no prior state
-            f64::INFINITY,     // best_obj_in
+            None,          // no prior state
+            f64::INFINITY, // best_obj_in
             config.seed,
-            0,                 // no eval limit
+            0,                       // no eval limit
             initial_mean.as_deref(), // pass the user guess as Option<&[f64]>
         );
         return res;
@@ -980,7 +998,6 @@ fn run_ipop<F>(
     bounds: &[(f64, f64)],
     mut config: CmaesCanonicalConfig,
     initial_mean: Option<Vec<f64>>,
-
 ) -> CmaesResult
 where
     F: Fn(&[f64]) -> f64 + Sync + Send,
@@ -1022,8 +1039,11 @@ where
             global_best,
             config.seed + restart_i as u64,
             eval_limit_this_run,
-            if restart_i == 0 { initial_mean.as_deref() } else { None },
-
+            if restart_i == 0 {
+                initial_mean.as_deref()
+            } else {
+                None
+            },
         );
 
         // Update total usage, final state, final reason, etc.
@@ -1084,7 +1104,6 @@ fn run_bipop<F>(
     bounds: &[(f64, f64)],
     mut config: CmaesCanonicalConfig,
     initial_mean: Option<Vec<f64>>,
-
 ) -> CmaesResult
 where
     F: Fn(&[f64]) -> f64 + Sync + Send,
@@ -1110,7 +1129,8 @@ where
     let mut cmaes_state: Option<CmaesIntermediateState> = None;
 
     let mut large_pop = baseline_pop;
-    let small_pop = (baseline_pop as f64 * config.bipop_small_population_factor.unwrap_or(0.5)).ceil() as usize;
+    let small_pop =
+        (baseline_pop as f64 * config.bipop_small_population_factor.unwrap_or(0.5)).ceil() as usize;
 
     for restart_i in 0..=restarts {
         let use_small = (restart_i % 2) == 0;
@@ -1120,7 +1140,11 @@ where
 
         // For BIPOP, let's do a different fraction for large vs. small.
         let eval_limit_this_run = if config.use_subrun_budgeting && leftover > 0 {
-            let factor = if use_small { config.bipop_small_budget_factor.unwrap_or(1.0) } else { config.bipop_large_budget_factor.unwrap_or(3.0) };
+            let factor = if use_small {
+                config.bipop_small_budget_factor.unwrap_or(1.0)
+            } else {
+                config.bipop_large_budget_factor.unwrap_or(3.0)
+            };
             // A simple approach: fraction = factor / (restarts - restart_i + 1)
             // Then clamp.
             let runs_left = (restarts - restart_i) + 1;
@@ -1149,7 +1173,11 @@ where
             global_best,
             config.seed + restart_i as u64,
             eval_limit_this_run,
-            if restart_i == 0 { initial_mean.as_deref() } else { None },
+            if restart_i == 0 {
+                initial_mean.as_deref()
+            } else {
+                None
+            },
         );
 
         // Restore original pop_size in config if needed
@@ -1171,7 +1199,8 @@ where
         // If that was a large run, we double large_pop next time we do large
         // If it was a small run, we can keep small_pop or slightly adjust
         if !use_small {
-            large_pop = (large_pop as f64 * config.bipop_large_pop_increase_factor.unwrap_or(2.0)).round() as usize;
+            large_pop = (large_pop as f64 * config.bipop_large_pop_increase_factor.unwrap_or(2.0))
+                .round() as usize;
         }
 
         if config.use_subrun_budgeting && total_budget > 0 && total_evals_used >= total_budget {

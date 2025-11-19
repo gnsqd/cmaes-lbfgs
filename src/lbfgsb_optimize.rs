@@ -2,31 +2,31 @@
 //! and Strong Wolfe line search for robust convergence.
 
 /// Configuration parameters for L-BFGS-B optimization.
-/// 
+///
 /// This struct contains all parameters that control the behavior of the L-BFGS-B algorithm.
 /// All parameters have sensible defaults suitable for most optimization problems.
-/// 
+///
 /// # Core Parameters
-/// 
+///
 /// The most important parameters for typical usage are:
 /// - `memory_size`: Controls memory usage vs convergence speed trade-off
 /// - `obj_tol` and `step_size_tol`: Control convergence criteria
 /// - `c1` and `c2`: Control line search behavior
-/// 
+///
 /// # Numerical Parameters
-/// 
+///
 /// Parameters related to finite difference gradients and numerical stability:
 /// - `fd_epsilon` and `fd_min_step`: Control gradient approximation accuracy
 /// - `boundary_tol`: Controls handling of bound constraints
-/// 
+///
 /// # Example
-/// 
+///
 /// ```rust
 /// use cmaes_lbfgsb::lbfgsb_optimize::LbfgsbConfig;
-/// 
+///
 /// // Basic configuration (often sufficient)
 /// let config = LbfgsbConfig::default();
-/// 
+///
 /// // High-precision configuration
 /// let precise_config = LbfgsbConfig {
 ///     memory_size: 20,
@@ -34,7 +34,7 @@
 ///     step_size_tol: 1e-12,
 ///     ..Default::default()
 /// };
-/// 
+///
 /// // Configuration for noisy functions
 /// let robust_config = LbfgsbConfig {
 ///     c1: 1e-3,
@@ -46,33 +46,33 @@
 /// ```
 pub struct LbfgsbConfig {
     /// Memory size for L-BFGS (number of past gradient vectors to store).
-    /// 
+    ///
     /// **Default**: 5
-    /// 
+    ///
     /// **Typical range**: 3-20
-    /// 
+    ///
     /// **Trade-offs**:
     /// - **Larger values**: Better approximation of Hessian, faster convergence, more memory
     /// - **Smaller values**: Less memory usage, more robust to non-quadratic functions
-    /// 
+    ///
     /// **Guidelines**:
     /// - Small problems (< 100 parameters): 5-10 is usually sufficient
     /// - Large problems (> 1000 parameters): 10-20 can help convergence
     /// - Noisy functions: Use smaller values (3-7) for more robustness
     /// - Very smooth functions: Can benefit from larger values (15-20)
-    /// 
+    ///
     /// **Memory usage**: Each vector stored uses O(n) memory where n is problem dimension.
     pub memory_size: usize,
 
     /// Tolerance for relative function improvement (convergence criterion).
-    /// 
+    ///
     /// **Default**: 1e-8
-    /// 
+    ///
     /// **Typical range**: 1e-12 to 1e-4
-    /// 
+    ///
     /// The algorithm terminates when the relative change in objective value falls below this threshold:
     /// `|f_old - f_new| / max(|f_old|, |f_new|, 1.0) < obj_tol`
-    /// 
+    ///
     /// **Guidelines**:
     /// - **High precision needed**: Use 1e-12 to 1e-10
     /// - **Standard precision**: Use 1e-8 to 1e-6
@@ -81,14 +81,14 @@ pub struct LbfgsbConfig {
     pub obj_tol: f64,
 
     /// Tolerance for step size norm (convergence criterion).
-    /// 
+    ///
     /// **Default**: 1e-9
-    /// 
+    ///
     /// **Typical range**: 1e-12 to 1e-6
-    /// 
+    ///
     /// The algorithm terminates when `||step|| < step_size_tol`, indicating that
     /// parameter changes have become negligibly small.
-    /// 
+    ///
     /// **Guidelines**:
     /// - Should typically be smaller than `obj_tol`
     /// - For parameters with scale ~1: Use default value
@@ -97,60 +97,60 @@ pub struct LbfgsbConfig {
     pub step_size_tol: f64,
 
     /// First Wolfe condition parameter (sufficient decrease, Armijo condition).
-    /// 
+    ///
     /// **Default**: 1e-4
-    /// 
+    ///
     /// **Typical range**: 1e-5 to 1e-2
-    /// 
+    ///
     /// Controls the required decrease in objective function for accepting a step.
     /// The condition is: `f(x + α*d) ≤ f(x) + c1*α*∇f(x)ᵀd`
-    /// 
+    ///
     /// **Trade-offs**:
     /// - **Smaller values**: More stringent decrease requirement, shorter steps, more stable
     /// - **Larger values**: Less stringent requirement, longer steps, faster progress
-    /// 
+    ///
     /// **Guidelines**:
     /// - **Well-conditioned problems**: Can use larger values (1e-3 to 1e-2)
     /// - **Ill-conditioned problems**: Use smaller values (1e-5 to 1e-4)
     /// - **Noisy functions**: Use smaller values for stability
-    /// 
+    ///
     /// **Must satisfy**: 0 < c1 < c2 < 1
     pub c1: f64,
 
     /// Second Wolfe condition parameter (curvature condition).
-    /// 
+    ///
     /// **Default**: 0.9
-    /// 
+    ///
     /// **Typical range**: 0.1 to 0.9
-    /// 
+    ///
     /// Controls the required change in gradient for accepting a step.
     /// The condition is: `|∇f(x + α*d)ᵀd| ≤ c2*|∇f(x)ᵀd|`
-    /// 
+    ///
     /// **Trade-offs**:
     /// - **Smaller values**: More stringent curvature requirement, shorter steps
     /// - **Larger values**: Less stringent requirement, longer steps, fewer line search iterations
-    /// 
+    ///
     /// **Guidelines**:
     /// - **Newton-like methods**: Use large values (0.9) to allow long steps
     /// - **Gradient descent-like**: Use smaller values (0.1-0.5) for more careful steps
     /// - **Default 0.9**: Good for L-BFGS as it allows the algorithm to take longer steps
-    /// 
+    ///
     /// **Must satisfy**: 0 < c1 < c2 < 1
     pub c2: f64,
 
     /// Base step size for finite difference gradient estimation.
-    /// 
+    ///
     /// **Default**: 1e-8
-    /// 
+    ///
     /// **Typical range**: 1e-12 to 1e-4
-    /// 
+    ///
     /// The actual step size used is `max(fd_epsilon * |x_i|, fd_min_step)` for each parameter.
     /// This provides relative scaling for different parameter magnitudes.
-    /// 
+    ///
     /// **Trade-offs**:
     /// - **Smaller values**: More accurate gradients, but risk of numerical cancellation
     /// - **Larger values**: Less accurate gradients, but more robust to noise
-    /// 
+    ///
     /// **Guidelines**:
     /// - **Smooth functions**: Can use smaller values (1e-10 to 1e-8)
     /// - **Noisy functions**: Use larger values (1e-6 to 1e-4)
@@ -158,14 +158,14 @@ pub struct LbfgsbConfig {
     pub fd_epsilon: f64,
 
     /// Minimum step size for finite difference gradient estimation.
-    /// 
+    ///
     /// **Default**: 1e-12
-    /// 
+    ///
     /// **Typical range**: 1e-15 to 1e-8
-    /// 
+    ///
     /// Ensures that finite difference steps don't become too small for parameters
     /// near zero, which would lead to poor gradient estimates.
-    /// 
+    ///
     /// **Guidelines**:
     /// - Should be much smaller than typical parameter values
     /// - Consider the scale of your smallest meaningful parameter changes
@@ -174,14 +174,14 @@ pub struct LbfgsbConfig {
     pub fd_min_step: f64,
 
     /// Initial step size for line search.
-    /// 
+    ///
     /// **Default**: 1.0
-    /// 
+    ///
     /// **Typical range**: 0.1 to 10.0
-    /// 
+    ///
     /// The line search starts with this step size and adjusts based on the Wolfe conditions.
     /// For L-BFGS, starting with 1.0 often works well as the algorithm approximates Newton steps.
-    /// 
+    ///
     /// **Guidelines**:
     /// - **Well-conditioned problems**: 1.0 is usually optimal
     /// - **Ill-conditioned problems**: May benefit from smaller initial steps (0.1-0.5)
@@ -190,18 +190,18 @@ pub struct LbfgsbConfig {
     pub initial_step: f64,
 
     /// Maximum number of line search iterations per optimization step.
-    /// 
+    ///
     /// **Default**: 20
-    /// 
+    ///
     /// **Typical range**: 10-50
-    /// 
+    ///
     /// Controls how much effort is spent finding a good step size. If the maximum
     /// is reached, the algorithm takes the best step found so far.
-    /// 
+    ///
     /// **Trade-offs**:
     /// - **Larger values**: More accurate line search, potentially faster overall convergence
     /// - **Smaller values**: Less time per iteration, may need more iterations overall
-    /// 
+    ///
     /// **Guidelines**:
     /// - **Smooth functions**: 10-20 iterations usually sufficient
     /// - **Difficult functions**: May need 30-50 iterations
@@ -209,15 +209,15 @@ pub struct LbfgsbConfig {
     pub max_line_search_iters: usize,
 
     /// Tolerance for gradient projection to zero at boundaries.
-    /// 
+    ///
     /// **Default**: 1e-14
-    /// 
+    ///
     /// **Typical range**: 1e-16 to 1e-10
-    /// 
+    ///
     /// When a parameter is at a bound and the gradient would push it further beyond
     /// the bound, the gradient component is projected to zero. This tolerance
     /// determines when a parameter is considered "at" a bound.
-    /// 
+    ///
     /// **Guidelines**:
     /// - Should be much smaller than the expected precision of your solution
     /// - Too small: Parameters may never be considered exactly at bounds
@@ -271,7 +271,7 @@ where
 {
     // Use provided config or default
     let config = config.unwrap_or_default();
-    
+
     let n = x.len();
     if bounds.len() != n {
         return Err("Bounds dimension does not match x dimension.".into());
@@ -376,8 +376,10 @@ where
 
         // BFGS update
         let s_vec: Vec<f64> = x.iter().zip(old_x.iter()).map(|(xi, oi)| xi - oi).collect();
-        let mut y_vec = finite_difference_gradient(x, objective, config.fd_epsilon, config.fd_min_step);
-        let mut old_grad = finite_difference_gradient(&old_x, objective, config.fd_epsilon, config.fd_min_step);
+        let mut y_vec =
+            finite_difference_gradient(x, objective, config.fd_epsilon, config.fd_min_step);
+        let mut old_grad =
+            finite_difference_gradient(&old_x, objective, config.fd_epsilon, config.fd_min_step);
         project_gradient_bounds(&old_x, &mut old_grad, bounds, config.boundary_tol);
         for i in 0..n {
             y_vec[i] -= old_grad[i];
@@ -415,7 +417,8 @@ where
 fn project_gradient_bounds(x: &[f64], grad: &mut [f64], bounds: &[(f64, f64)], tol: f64) {
     for i in 0..x.len() {
         let (lb, ub) = bounds[i];
-        if ((x[i] - lb).abs() < tol && grad[i] > 0.0) || ((x[i] - ub).abs() < tol && grad[i] < 0.0) {
+        if ((x[i] - lb).abs() < tol && grad[i] > 0.0) || ((x[i] - ub).abs() < tol && grad[i] < 0.0)
+        {
             grad[i] = 0.0;
         }
     }
@@ -423,10 +426,10 @@ fn project_gradient_bounds(x: &[f64], grad: &mut [f64], bounds: &[(f64, f64)], t
 
 /// Computes the finite-difference gradient using central differences with adaptive step.
 fn finite_difference_gradient<F: Fn(&[f64]) -> f64>(
-    x: &[f64], 
-    f: &F, 
-    epsilon: f64, 
-    min_step: f64
+    x: &[f64],
+    f: &F,
+    epsilon: f64,
+    min_step: f64,
 ) -> Vec<f64> {
     let n = x.len();
     let mut grad = vec![0.0; n];
@@ -522,7 +525,9 @@ where
 
     for _ in 0..max_iter {
         // Evaluate objective at alpha
-        let trial: Vec<f64> = x.iter().zip(direction.iter())
+        let trial: Vec<f64> = x
+            .iter()
+            .zip(direction.iter())
             .enumerate()
             .map(|(idx, (&xi, &di))| {
                 let candidate = xi + alpha * di;
