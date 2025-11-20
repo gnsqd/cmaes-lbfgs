@@ -2,7 +2,7 @@
 
 A high-performance Rust optimization library featuring two complementary state-of-the-art algorithms: **CMA-ES** (Covariance Matrix Adaptation Evolution Strategy) and **L-BFGS-B** (Limited-memory Broyden-Fletcher-Goldfarb-Shanno with Box constraints).
 
-Originally developed for **options surface calibration** in quantitative finance, this library provides robust, production-ready implementations suitable for any optimization problem requiring either gradient-free evolutionary optimization or efficient quasi-Newton methods with bounds.
+Originally developed for [options surface calibration](https://github.com/gnsqd/surface) in quantitative finance, this library provides robust, production-ready implementations suitable for any optimization problem requiring either gradient-free evolutionary optimization or efficient quasi-Newton methods with bounds.
 
 ## Features
 
@@ -214,22 +214,11 @@ Or generate the documentation locally:
 cargo doc --open
 ```
 
-## When to Use Which Algorithm
-
-| Problem Type | Recommended Algorithm | Finance Example |
-|--------------|----------------------|-----------------|
-| Smooth, differentiable | L-BFGS-B | Black-Scholes parameter fitting |
-| Non-smooth, noisy | CMA-ES | Monte Carlo-based model calibration |
-| Many local minima | CMA-ES | Heston model full calibration |
-| High-dimensional (>1000) | L-BFGS-B | Large options portfolio hedging |
-| Expensive function evaluations | L-BFGS-B | Complex exotic pricing models |
-| Derivative-free required | CMA-ES | Jump-diffusion models |
-| Initial rough calibration | CMA-ES | Volatility surface bootstrapping |
-| Fine-tuning/polishing | L-BFGS-B | Refining CMA-ES results |
-
 ## Origins: Options Surface Calibration
 
 This library was originally developed to solve a challenging problem in **quantitative finance**: calibrating complex options pricing models to market data.
+
+You can see usage of this library in the calibration process of [our Surface lib](https://github.com/gnsqd/surface/).
 
 **The Challenge:**
 - **Volatility surfaces** are highly non-linear and often exhibit multiple local minima
@@ -248,35 +237,10 @@ While designed for options pricing, these implementations excel at any optimizat
 - Engineering design optimization
 - Scientific model fitting
 
-## Performance Tips
-
-1. **CMA-ES**: 
-   - Use parallel evaluation for expensive functions (set `parallel_eval: true`)
-   - Tune population size based on problem difficulty (default: 4 + 3⌊ln(n)⌋)
-   - Consider restart strategies for multimodal problems (IPOP/BIPOP)
-   - Start with larger bounds, let the algorithm adapt
-
-2. **L-BFGS-B**:
-   - Increase memory size (10-20) for better convergence on smooth problems
-   - Provide analytical gradients when available for best performance
-   - Adjust line search parameters (c1, c2) for difficult problems
-   - Use good initial guesses (possibly from CMA-ES results)
-
-3. **Combined Strategy**:
-   - Use CMA-ES for global exploration, then L-BFGS-B for local refinement
-   - Particularly effective for options surface calibration workflows
-
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the dual License - see the [LICENSE](LICENSE) file for details.
 
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
-
-## Citation
-
-If you use this library in academic work, please consider citing the original algorithms:
-
-- **CMA-ES**: Hansen, N. (2006). The CMA evolution strategy: a comparing review.
-- **L-BFGS-B**: Byrd, R. H., Lu, P., Nocedal, J., & Zhu, C. (1995). A limited memory algorithm for bound constrained optimization.
