@@ -921,6 +921,8 @@ where
 
         generation += 1;
 
+        #[allow(unknown_lints)]
+        #[allow(clippy::manual_is_multiple_of)]
         if config.verbosity > 0 && (generation % 10 == 0 || generation == max_generations) {
             println!(
                 "[CMA-ES Gen {}] best={:.8}, sigma={:.5}, no_improv={}, evals_used={}",
